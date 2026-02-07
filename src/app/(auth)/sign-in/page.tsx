@@ -4,10 +4,13 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, Code2, Eye, EyeOff, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
+import { signInAction } from "@/actions/auth-actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,6 +20,7 @@ import { type SignInFormValues, signInSchema } from "@/lib/schemas";
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -30,11 +34,16 @@ export default function SignInPage() {
     },
   });
 
-  function onSubmit(data: SignInFormValues) {
+  async function onSubmit(data: SignInFormValues) {
     setIsLoading(true);
-    // Simulate API call
-    console.log("Sign in data:", data);
-    setTimeout(() => setIsLoading(false), 2000);
+    const result = await signInAction(data);
+    if (result.success) {
+      toast.success("Signed in successfully");
+      router.push("/");
+    } else {
+      toast.error(result.error);
+    }
+    setIsLoading(false);
   }
 
   return (

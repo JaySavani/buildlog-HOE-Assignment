@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -15,7 +16,9 @@ import {
   Loader2,
   X,
 } from "lucide-react";
+import { toast } from "sonner";
 
+import { signUpAction } from "@/actions/auth-actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -91,6 +94,7 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -112,10 +116,16 @@ export default function SignUpPage() {
   const passwordValue = useWatch({ control, name: "password" });
   const agreeToTerms = useWatch({ control, name: "agreeToTerms" });
 
-  function onSubmit(data: SignUpFormValues) {
+  async function onSubmit(data: SignUpFormValues) {
     setIsLoading(true);
-    console.log("Sign up data:", data);
-    setTimeout(() => setIsLoading(false), 2000);
+    const result = await signUpAction(data);
+    if (result.success) {
+      toast.success("Account created successfully");
+      router.push("/sign-in");
+    } else {
+      toast.error(result.error);
+    }
+    setIsLoading(false);
   }
 
   return (
