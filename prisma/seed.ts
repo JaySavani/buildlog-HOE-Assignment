@@ -95,6 +95,31 @@ async function main() {
     },
   });
 
+  const users = [
+    { fullName: "Alice Smith", email: "alice@example.com" },
+    { fullName: "Bob Johnson", email: "bob@example.com" },
+    { fullName: "Charlie Brown", email: "charlie@example.com" },
+    { fullName: "Diana Prince", email: "diana@example.com" },
+  ];
+
+  const createdUsers = [];
+  for (const u of users) {
+    const user = await prisma.user.upsert({
+      where: { email: u.email },
+      update: {},
+      create: {
+        fullName: u.fullName,
+        email: u.email,
+        password: hashedPassword,
+        role: Role.USER,
+      },
+    });
+    createdUsers.push(user);
+  }
+
+  // Combine all users for interaction
+  const allUsers = [admin, normalUser, ...createdUsers];
+
   // 3. Seed Projects
   console.log("Seeding projects...");
   const projectData = [
@@ -258,8 +283,21 @@ async function main() {
     },
   ];
 
+  const sampleComments = [
+    "Amazing project! Really love the attention to detail.",
+    "This is exactly what I was looking for, great job.",
+    "The UI is stunning. How did you handle the state management?",
+    "Could use some improvements on the mobile view, but overall great.",
+    "I'd love to contribute to this! Is it open for PRs?",
+    "Is there a demo available besides the screenshots?",
+    "Wow, this looks very polished. Practical and beautiful.",
+    "Impressive tech stack. I like how you integrated Prisma.",
+    "The landing page is fire! Great work on the animations.",
+    "Thanks for sharing, this helped me solve a similar problem.",
+  ];
+
   for (const p of projectData) {
-    await prisma.project.upsert({
+    const project = await prisma.project.upsert({
       where: { slug: p.slug },
       update: {
         status: p.status,
@@ -279,6 +317,44 @@ async function main() {
         },
       },
     });
+
+    // 4. Seed Random Social Interactions (Votes & Comments)
+    console.log(`Seeding social interactions for: ${project.title}`);
+
+    // Randomize interactions for each project
+    for (const user of allUsers) {
+      // 50% chance to vote
+      if (Math.random() > 0.5) {
+        const voteValue = Math.random() > 0.3 ? 1 : -1; // 70% chance it's an upvote
+        await prisma.vote.upsert({
+          where: {
+            userId_projectId: {
+              userId: user.id,
+              projectId: project.id,
+            },
+          },
+          update: { value: voteValue },
+          create: {
+            userId: user.id,
+            projectId: project.id,
+            value: voteValue,
+          },
+        });
+      }
+
+      // 30% chance to comment
+      if (Math.random() > 0.7) {
+        const randomComment =
+          sampleComments[Math.floor(Math.random() * sampleComments.length)];
+        await prisma.comment.create({
+          data: {
+            content: randomComment,
+            userId: user.id,
+            projectId: project.id,
+          },
+        });
+      }
+    }
   }
 
   console.log("Seeding finished.");
