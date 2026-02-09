@@ -21,6 +21,16 @@
 
 ---
 
+## ✅ Engineering Best Practices
+
+- **Code Quality Control**: Pre-commit hooks via **Husky** and **lint-staged** to ensure code consistency and prevent linting errors.
+- **Automated Formatting**: Standardized code style using **Prettier** with automatic **import sorting** and Tailwind class sorting.
+- **Optimized Performance**: Leveraged **React Suspense** and **Streaming** for faster page loads and smooth skeleton states.
+- **Seamless UX**: Implemented robust **Pagination** for project discovery and admin management to handle large datasets efficiently.
+- **Automated CI/CD**: Clean code and successful builds are enforced via **GitHub Actions**, covering linting, formatting, and production build verification.
+
+---
+
 ## 🛠️ Tech Stack
 
 ### Frontend
