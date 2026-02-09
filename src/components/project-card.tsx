@@ -17,6 +17,7 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { Project } from "@/types/project";
 
 export function ProjectCard({
@@ -26,6 +27,8 @@ export function ProjectCard({
   project: Project;
   showStatus?: boolean;
 }) {
+  const isApproved = project.status === "approved";
+
   const initials = project.authorName
     .split(" ")
     .map((n) => n[0])
@@ -33,36 +36,78 @@ export function ProjectCard({
     .toUpperCase();
 
   return (
-    <Card className="group hover:border-primary/30 hover:shadow-primary/5 flex flex-col gap-2 overflow-hidden border py-0 transition-all duration-200 hover:shadow-lg">
-      <Link href={`/projects/${project.slug}`} className="flex flex-1 flex-col">
-        <CardHeader className="pt-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <h3 className="text-foreground group-hover:text-primary truncate text-base font-semibold transition-colors">
-                {project.title}
-              </h3>
+    <Card
+      className={cn(
+        "flex flex-col gap-2 overflow-hidden border py-0 transition-all duration-200",
+        isApproved
+          ? "group hover:border-primary/30 hover:shadow-primary/5 hover:shadow-lg"
+          : "opacity-95"
+      )}
+    >
+      {isApproved ? (
+        <Link
+          href={`/projects/${project.slug}`}
+          className="flex flex-1 flex-col"
+        >
+          <CardHeader className="pt-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <h3 className="group-hover:text-primary text-foreground truncate text-base font-semibold transition-colors">
+                  {project.title}
+                </h3>
+              </div>
+              {showStatus && <StatusBadge status={project.status} />}
             </div>
-            {showStatus && <StatusBadge status={project.status} />}
-          </div>
-        </CardHeader>
+          </CardHeader>
 
-        <CardContent className="flex-1 pb-4">
-          <p className="text-muted-foreground line-clamp-2 text-sm leading-relaxed">
-            {project.description}
-          </p>
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {project.categories.map((cat) => (
-              <Badge
-                key={cat.id}
-                variant="secondary"
-                className={`text-xs font-medium ${cat.color}`}
-              >
-                {cat.name}
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-      </Link>
+          <CardContent className="flex-1 pb-4">
+            <p className="text-muted-foreground line-clamp-2 text-sm leading-relaxed">
+              {project.description}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {project.categories.map((cat) => (
+                <Badge
+                  key={cat.id}
+                  variant="secondary"
+                  className={`text-xs font-medium ${cat.color}`}
+                >
+                  {cat.name}
+                </Badge>
+              ))}
+            </div>
+          </CardContent>
+        </Link>
+      ) : (
+        <div className="flex flex-1 cursor-default flex-col select-none">
+          <CardHeader className="pt-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <h3 className="text-foreground truncate text-base font-semibold transition-colors">
+                  {project.title}
+                </h3>
+              </div>
+              {showStatus && <StatusBadge status={project.status} />}
+            </div>
+          </CardHeader>
+
+          <CardContent className="flex-1 pb-4">
+            <p className="text-muted-foreground line-clamp-2 text-sm leading-relaxed">
+              {project.description}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {project.categories.map((cat) => (
+                <Badge
+                  key={cat.id}
+                  variant="secondary"
+                  className={`text-xs font-medium ${cat.color}`}
+                >
+                  {cat.name}
+                </Badge>
+              ))}
+            </div>
+          </CardContent>
+        </div>
+      )}
 
       <CardFooter className="bg-muted/30 px-5 py-3">
         <div className="flex w-full items-center justify-between">
